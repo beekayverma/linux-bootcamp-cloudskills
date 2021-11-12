@@ -1,0 +1,84 @@
+## I chose NorwayEast as it's closer to my location which I preferred.##
+
+
+b@Azure:~$ az group create --name myResourceGroup --location norwayeast
+{
+  "id": "/subscriptions/c435899a-73cb-4760-9b86-80ff41a8e74e/resourceGroups/myResourceGroup",
+  "location": "norwayeast",
+  "managedBy": null,
+  "name": "myResourceGroup",
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "tags": null,
+  "type": "Microsoft.Resources/resourceGroups"
+}
+
+
+__________________
+
+Create virtual machine
+Create a VM with the az vm create command.
+
+The following example creates a VM named myVM and adds a user account named azureuser. The --generate-ssh-keys parameter is used to automatically generate an SSH key, and put it in the default key location (~/.ssh). To use a specific set of keys instead, use the --ssh-key-values option.
+
+az vm create \
+  --resource-group myResourceGroup \
+  --name myVM \
+  --image UbuntuLTS \
+  --admin-username azureuser \
+  --generate-ssh-keys
+
+It takes a few minutes to create the VM and supporting resources. The following example output shows the VM create operation was successful.
+
+{
+  "fqdns": "",
+  "id": "/subscriptions/c435899a-73cb-4760-9b86-80ff41a8e74e/resourceGroups/myResourceGroup/providers/Microsoft.Compute/virtualMachines/myVM",
+  "location": "norwayeast",
+  "macAddress": "00-22-48-75-59-CA",
+  "powerState": "VM running",
+  "privateIpAddress": "10.0.0.4",
+  "publicIpAddress": "PU.BL.IC.IP",
+  "resourceGroup": "myResourceGroup",
+  "zones": ""
+}
+
+Note your own publicIpAddress in the output from your VM. This address is used to access the VM in the next steps.
+
+_____________________
+
+Open port 80 for web traffic
+By default, only SSH connections are opened when you create a Linux VM in Azure. Use az vm open-port to open TCP port 80 for use with the NGINX web server:
+
+az vm open-port --port 80 --resource-group myResourceGroup --name myVM
+
+THIS WILL HAVE A REALLY LONG OUTPUT. BUT IT WILL DO THE TRICK FOR YOU!
+
+_______________________
+
+Connect to virtual machine
+SSH to your VM as normal. Replace the IP address in the example with the public IP address of your VM as noted in the previous output:
+
+ssh azureuser@PU.BL.IC.IP
+
+THIS WILL PROMPT TO ASK YES/NO TO CONNECT TO VM AND AUTHORIZE THE FINGERPRINT KEY AND ADD DETAILS OF HOST ON LOCAL MACHINE.
+
+__________________________
+
+Install web server
+To see your VM in action, install the NGINX web server. Update your package sources and then install the latest NGINX package.
+
+sudo apt-get -y update
+sudo apt-get -y install nginx
+
+THE -Y OPTION WILL NOT PROMPT FOR YES/NO BUT TAKE YES AS DEFAULT TO BYPASS THIS STEP AND THEN INSTALL UPDATE + NGINX 
+
+______________________________
+
+Clean up resources
+When no longer needed, you can use the az group delete command to remove the resource group, VM, and all related resources.
+
+az group delete --name myResourceGroup
+
+_____________________________
+
